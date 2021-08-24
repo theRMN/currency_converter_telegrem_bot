@@ -3,8 +3,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram import Bot, Dispatcher, executor, types
 
-from datetime import datetime
-from logic import actual_course, currency
+from logic import currency
 from config import API_TOKEN
 import logging
 
@@ -39,28 +38,38 @@ async def menu(message: types.Message):
 
 @dp.message_handler(state=Form.count)
 async def converter(message: types.Message, state: FSMContext):
-    course = float(actual_course())
-    count = message.text
+    count = message.text.split()
+
     try:
-        count = int(count)
-        await message.reply(f'{count} долларов = {count * round(course, 1)} тенге', reply=False)
-        await state.finish()
+        str(count[0].upper())
+        float(count[1])
     except ValueError:
-        await message.reply('Введите число:')
+        await message.reply('Что то пошло не так, попробуйте снова.')
+        await state.finish()
+
+    cur = str(count[0].upper())
+    value = float(count[1])
+
+    if count[0].upper() in currency().keys():
+        await message.reply(f'{count[1]} {cur} --- {round((float(currency()[cur]) * value), 2)} KZT', reply=False)
+        await state.finish()
+    else:
+        await message.reply('Что то пошло не так, попробуйте снова.')
+        await state.finish()
 
 
 @dp.message_handler(commands=['ac'])
 async def ac(message: types.Message):
     text = ''
     for i in currency().items():
-        text += f'{i[0]} - {i[1]}\n'
+        text += f'{i[0]} --- {i[1]} KZT\n'
     await message.reply(f'Актуальный курс:\n{text}')
 
 
 @dp.message_handler(commands=['calculate'])
 async def calc(message: types.Message):
     await Form.count.set()
-    await message.reply("Введите число", reply=False)
+    await message.reply('Введите валюту и число, например "USD 20"', reply=False)
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True)
