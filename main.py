@@ -4,7 +4,7 @@ from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram import Bot, Dispatcher, executor, types
 
 from datetime import datetime
-from logic import actual_course
+from logic import actual_course, currency
 from config import API_TOKEN
 import logging
 
@@ -51,8 +51,10 @@ async def converter(message: types.Message, state: FSMContext):
 
 @dp.message_handler(commands=['ac'])
 async def ac(message: types.Message):
-    await message.reply(f'Актуальный курс на момент {datetime.now(tz=None)}:'
-                        f'\n1 доллар = {actual_course()} тенге', reply=False)
+    text = ''
+    for i in currency().items():
+        text += f'{i[0]} - {i[1]}\n'
+    await message.reply(f'Актуальный курс:\n{text}')
 
 
 @dp.message_handler(commands=['calculate'])
