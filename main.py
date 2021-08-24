@@ -1,13 +1,13 @@
-import logging
-from datetime import datetime
-
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
-
-from logic import actual_course
 from aiogram import Bot, Dispatcher, executor, types
+
+from datetime import datetime
+from logic import actual_course
 from config import API_TOKEN
+import logging
+
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -23,7 +23,7 @@ class Form(StatesGroup):
 
 @dp.message_handler(commands=['start'])
 async def start(message: types.Message):
-    await message.reply('Привет! Для получения списка команд введи /help', reply=False)
+    await message.reply('Привет! Для получения списка команд введи - /help', reply=False)
 
 
 @dp.message_handler(commands=['help'])
