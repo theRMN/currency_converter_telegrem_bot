@@ -52,6 +52,7 @@ async def converter(message: types.Message, state: FSMContext):
     except ValueError:
         await message.reply('Что то пошло не так, попробуйте снова.')
         await state.finish()
+        return
 
     cur = str(count[0].upper())
     amount = float(count[1])
@@ -77,7 +78,7 @@ async def ac(message: types.Message):
     await message.reply(f'Актуальный курс:\n{text}', reply=False)
 
 
-@dp.message_handler(commands=['calculate'])
+@dp.message_handler(commands=['calculate', 'conv'])
 async def calc(message: types.Message):
     await Form.count.set()
     await message.reply('Введите валюту, число и базовую валюту,\nнапример "USD 20 KZT"', reply=False)
