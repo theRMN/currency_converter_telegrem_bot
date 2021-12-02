@@ -3,8 +3,8 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram import Bot, Dispatcher, executor, types
 
-from logic import currency
-from config import API_TOKEN
+from logic import cur_convert, get_currency_data
+from config import API_TOKEN, MAIN_CURRENCY
 import logging
 
 
@@ -30,7 +30,7 @@ async def menu(message: types.Message):
     await message.reply(
         text='''
 Список комманд:
-Калькулятор - /calculate
+Конвертер - /conv
 Узнать актуальный курс - /ac
 ''',
         reply=False)
@@ -40,36 +40,47 @@ async def menu(message: types.Message):
 async def converter(message: types.Message, state: FSMContext):
     count = message.text.split()
 
+    if len(count) != 3:
+        await message.reply('Неправильный формат ввода.')
+        await state.finish()
+        return
+
     try:
         str(count[0].upper())
         float(count[1])
+        str(count[2].upper())
     except ValueError:
         await message.reply('Что то пошло не так, попробуйте снова.')
         await state.finish()
 
     cur = str(count[0].upper())
-    value = float(count[1])
+    amount = float(count[1])
+    new_cur = str(count[2].upper())
+    result = cur_convert(amount, cur, new_cur)
 
-    if count[0].upper() in currency().keys():
-        await message.reply(f'{count[1]} {cur} --- {round((float(currency()[cur]) * value), 2)} KZT', reply=False)
+    if result:
+        await message.reply(f'{amount} {cur} = {result} {new_cur}', reply=False)
         await state.finish()
     else:
-        await message.reply('Что то пошло не так, попробуйте снова.')
+        await message.reply('Нет такой валюты')
         await state.finish()
 
 
 @dp.message_handler(commands=['ac'])
 async def ac(message: types.Message):
     text = ''
-    for i in currency().items():
-        text += f'{i[0]} --- {i[1]} KZT\n'
-    await message.reply(f'Актуальный курс:\n{text}')
+    currency_dict = get_currency_data()
+
+    for i in currency_dict.items():
+        text += f'{i[0]} --- {i[1]} {MAIN_CURRENCY}\n'
+
+    await message.reply(f'Актуальный курс:\n{text}', reply=False)
 
 
 @dp.message_handler(commands=['calculate'])
 async def calc(message: types.Message):
     await Form.count.set()
-    await message.reply('Введите валюту и число, например "USD 20"', reply=False)
+    await message.reply('Введите валюту, число и базовую валюту,\nнапример "USD 20 KZT"', reply=False)
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True)

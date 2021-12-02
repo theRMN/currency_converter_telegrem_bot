@@ -1,0 +1,5 @@
+API_TOKEN = 'token'
+
+MAIN_CURRENCY = 'KZT'
+
+CURRENCY_URL = 'https://prodengi.kz/kurs-valyut'
