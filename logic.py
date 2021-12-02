@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+
 from config import MAIN_CURRENCY, CURRENCY_URL
 
 
@@ -18,9 +19,6 @@ def cur_convert(amount, currency, new_currency):
 
     if currency and new_currency not in currency_data:
         return None
-
-    if currency == new_currency:
-        return amount
 
     if currency == MAIN_CURRENCY:
         result = amount / float(currency_data[new_currency])

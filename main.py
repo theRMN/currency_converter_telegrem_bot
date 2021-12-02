@@ -3,9 +3,10 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram import Bot, Dispatcher, executor, types
 
+import logging
+
 from logic import cur_convert, get_currency_data
 from config import API_TOKEN, MAIN_CURRENCY
-import logging
 
 
 logging.basicConfig(level=logging.DEBUG)
@@ -54,10 +55,10 @@ async def converter(message: types.Message, state: FSMContext):
         await state.finish()
         return
 
-    cur = str(count[0].upper())
+    cur = count[0].upper()
     amount = float(count[1])
-    new_cur = str(count[2].upper())
-    result = cur_convert(amount, cur, new_cur)
+    new_cur = count[2].upper()
+    result = cur_convert(amount=amount, currency=cur, new_currency=new_cur)
 
     if result:
         await message.reply(f'{amount} {cur} = {result} {new_cur}', reply=False)
@@ -85,5 +86,3 @@ async def calc(message: types.Message):
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True)
-
-
